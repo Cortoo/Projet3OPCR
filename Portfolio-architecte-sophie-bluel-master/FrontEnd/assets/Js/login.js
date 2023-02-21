@@ -40,11 +40,11 @@ form.addEventListener("submit", (event) => {
                 //to do 1 seul erreur : Erreur dans l’identifiant ou le mot de passe   else : 
                 if (response.status === 404) {
                     errorContainer.innerText =
-                        "L'adresse mail n'est pas reconnue !";
+                        "Erreur dans l’identifiant ou le mot de passe";
                 }
                 if (response.status === 401) {
                     errorContainer.innerText =
-                        "Le mot de passe ou l'email est incorrect !";
+                        "Erreur dans l’identifiant ou le mot de passe";
                 }
             } else {
                 return response.json();
