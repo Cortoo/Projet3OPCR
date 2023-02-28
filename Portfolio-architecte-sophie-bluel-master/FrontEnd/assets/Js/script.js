@@ -24,7 +24,8 @@ fetch(`${url}works`)
       figure.appendChild(figcaption)
 
       var gallery = document.querySelector(".gallery");
-      gallery.appendChild(figure);
+      //to do : Refactoriser
+      const createFigureGallery = gallery.appendChild(figure);
       
     });
   })

@@ -77,21 +77,61 @@
 
 <aside id="edit_modal" class="modal">
 	<div class="modalWrapper">
-	<header>
+	<header class="headerModal">
 		<i id="closeModal" class="fa-solid fa-xmark"></i>
 	</header>
 	<h3>Galerie photo</h3>
 	<div class="modal_content"></div>
-	<input type="submit" value="Ajouter une photo">
-	<div class="gallery_supression_trigger">Supprimer la galerie</div>
-</div>
+	<input type="submit" id="addPhoto" value="Ajouter une photo">  
+	<div class="gallery_supression">Supprimer la galerie</div>
 </aside>
-
-
-
-		<input type="submit" id="modal_form_validation" value="Valider" class="inactive_button">
-	</form>
 </div>
+
+
+	<aside id="add_Photo" class="modal_2">
+		<div class="modalWrapper">
+		<header class="headerModal">
+			<i id="previous_icon" class="fa-solid fa-arrow-left-long"></i>
+			<i id="closeModal_2" class="fa-solid fa-xmark"></i>
+		</header>
+		<h3>Ajout photo</h3>
+		<div class="modal_content"></div>
+	<form action="#" method="post" id="addPhotoForm">
+		<div id="sendPhotoContainer">
+			<label class="sendPhotoContent" for="buttonAddPhoto">
+				<i class="fa-regular fa-image photoIcon"></i>
+			</label>
+			<label for="buttonAddPhoto" id="buttonAddPhotoData" class="sendPhotoContent">
+			  + Ajouter photo
+			<input type="file" id="buttonAddPhoto" accept="image/jpeg,image/png,image/jpg" required />
+			</label>
+			<label class="sendPhotoContent" id="indicationPhoto">jpg.png: 4mo max</label>
+                            <img id="photoShowPreview" alt="votre photo" src="#" />
+                        </div>
+						<div class="optionPhotoSelection">
+                        <label>Titre</label>
+                        <input type="text" name="Title" id="sendPhotoTitle" required />
+                        <label>Catégorie</label>
+                        <select id="sendPhotoCategory">
+                            <option value="0"></option>
+                            <option value="1">Objets</option>
+                            <option value="2">Appartements</option>
+                            <option value="3">Hôtels & restaurants</option>
+                        </select>
+						</div>
+                    </form>
+					<button id="valider">Valider</button>  
+			</div>
+			
+	
+		</aside>
+	</div>
+
+
+
+
+		
+
 
 </body>
 </html>

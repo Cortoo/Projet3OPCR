@@ -26,9 +26,31 @@ const createEditingButton = (id) => {
     editingButton.innerHTML = `<i class="fa-regular fa-pen-to-square"></i>
     <p>modifier</p>`;
 };
+   //test decode JWT
+   function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    if (base64Url) {
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    if (jsonPayload) {
+        return JSON.parse(jsonPayload);
+    }
+    else {
+        return null;
+    }
+}
+else {
+    return null;
+}
+}
 
 if (sessionStorage.token) {
-    //TO do : Lire token jwt et voir date de validité
+   
+    const timeOut = parseJwt(sessionStorage.token) ? parseJwt(sessionStorage.token).exp : 0;
+    if (timeOut >= Date.now()/1000) {
+        
     
     //suppression filtres quand login
     document.querySelector(".filters").style.display = "none";
@@ -57,7 +79,7 @@ if (sessionStorage.token) {
         //suppression du token de sessionStorage
         sessionStorage.clear();
         //redirection vers la page de connexion
-        window.location.href = "/login/login.html";
+        //window.location.href = "index.html";
     };
     const logoutButton = document.querySelector("#linkLogin");
     //ajout d'un addEventListener au clic sur le bouton
@@ -72,16 +94,26 @@ if (sessionStorage.token) {
     //Modal
     
     //OpenModal
+    let addPhotoModal = document.querySelector("#add_Photo");
+    let modal_2 = document.querySelector(".modal_2")
     let modal = document.querySelector(".modal")
     let overlay = document.querySelector(".overlay")
     const openModal = () => {
         modal.classList.add("active");
         overlay.classList.add("active");
     }
+
+    const openModal_2 = () => {
+        modal_2.style.display = "block";
+        overlay.classList.add("active");
+
+    }
     
     const projectsEditingButton = document.querySelectorAll(".edit_button").forEach(a => {
         a.addEventListener("click", openModal)
     })
+
+    
    
     //CloseModal
     const closeModal = () => {
@@ -89,7 +121,28 @@ if (sessionStorage.token) {
         overlay.classList.remove("active");
     };
 
+    //CloseModal2
+    const closeModal_2 = () => {
+        modal_2.style.display = "none";
+        overlay.classList.remove("active");
+    };
+
     document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("closeModal_2").addEventListener("click", closeModal_2);
+
+    // open Modal AddPhoto
+    const addingModal = document.getElementById("addPhoto");
+                addingModal.addEventListener("click", () => {
+                closeModal();
+                openModal_2()
+                });
+    
+    
+
+    
+
+    }
+        
 
 }
     //ajout des photos gallerie Modal
@@ -155,4 +208,149 @@ if (sessionStorage.token) {
             console.log(err);
         });
 
+        //delete WORK
+        const deleteWork = (element) => {
+            const workId = element.dataset.id;
+            fetch(`http://localhost:5678/api/works/${workId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${sessionStorage["token"]}`,
+                },
+            })
+                .then((res) => {
+                    if (res.ok) {
+                        console.log("L'image à bien été supprimée");
+                        element.parentNode.remove();
+                        Array.from(gallery.querySelectorAll("figure")).forEach(
+                            (figure) => {
+                                if (figure.getAttribute("data-id") === workId) {
+                                    figure.remove();
+                                }
+                            }
+                        );
+                    } else {
+                        //si la suppression a échoué, affiche un message d'erreur
+                        console.error("Une erreur est survenue lors de la suppression");
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+                };
+                
+                //fonction qui va vérifier si les datas rentrées dans le formulaire sont correctes
+            const verifyData = () => {
+            const buttonCheck = document.getElementById("valider");
+            const newPhoto = document.getElementById("buttonAddPhoto");
+            const newTitle = document.getElementById("sendPhotoTitle");
+            const selectElement = document.getElementById("sendPhotoCategory");
+            //si les 3 champs à remplir sont completés on met le background en couleur
+            if (
+            newPhoto.value !== "" &&
+            newTitle.value !== "" &&
+            selectElement.value !== "0"
+            ) {
+            let error = document.querySelector("p#error");
+            if (error) {
+            error.remove();
+            }
+            buttonCheck.style.backgroundColor = "#1D6154";
+            return true;
+            //sinon on le laisse en gris
+            } else {
+            buttonCheck.style.backgroundColor = "#A7A7A7";
+            return false;
+            }
+        };
 
+        const createNewWork = () => {
+            //crée la nouvelle image
+            const data = new FormData();
+            const buttonCheck = document.getElementById("valider");
+            const newPhoto = document.getElementById("buttonAddPhoto");
+            const newTitle = document.getElementById("sendPhotoTitle");
+            const newCategory = document.getElementById("sendPhotoCategory");
+            data.append("image", newPhoto.files[0]);
+            data.append("title", newTitle.value);
+            data.append("category", newCategory.value);
+        
+            fetch(
+                "http://localhost:5678/api/works", //envoie une requête à l'api pour crée une nouvelle image
+                {
+                    method: "POST",
+                    accept: "application/json",
+                    headers: {
+                        Authorization: `Bearer ${sessionStorage["token"]}`,
+                    },
+                    body: data,
+                }
+            )
+                .then((res) => {
+                    if (res.ok) {
+                        addDynamicWork();
+                        alert("Projet ajouté !");
+                    } else {
+                        let error = document.querySelector("p#error");
+                        if (error) {
+                            error.parentNode.removeChild(error);
+                        }
+                        buttonCheck.insertAdjacentHTML(
+                            "beforebegin",
+                            `<p id="error">*Veuillez remplir tous les champs</p>`
+                        );
+                    }
+                })
+                .then((data) => {
+                    console.log(data);
+                })
+        
+                .catch((error) => {
+                    console.log(error);
+                });
+        };
+        
+        const addDynamicWork = () => {
+            //ajoute dynamiquement le Work en utilisant l'ancienne fonction
+            fetch("http://localhost:5678/api/works")
+                .then((res) => {
+                    if (res.ok) {
+                        return res.json();
+                    }
+                })
+                .then((products) => {
+                    createFigureGallery(products[products.length - 1]);
+                    console.log("L'image a bien été ajoutée");
+                });
+        };
+
+        const photoPreview = document.getElementById("buttonAddPhoto");
+    photoPreview.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file.size < 4 * 1024 * 1024) {
+            //vérifie la taille de l'image
+            const photoPreviewBox = document.getElementById("photoShowPreview");
+            const fileUrl = URL.createObjectURL(file);
+            photoPreviewBox.src = fileUrl;
+
+            const sendPhotoContentElements =
+                document.querySelectorAll(".sendPhotoContent");
+            for (const element of sendPhotoContentElements) {
+                element.style.display = "none";
+                photoPreviewBox.style.display = "block";
+            }
+        } else {
+            alert("image trop volumineuse");
+        }
+    });
+
+//verifie les changement dans le form
+document
+.getElementById("addPhotoForm")
+.addEventListener("change", verifyData);
+
+//si le bouton est en couleur (valide), la fonction createNewWork est appellée quand cliqué
+document.getElementById("valider").addEventListener("click", () => {
+if (verifyData) {
+    createNewWork();
+}
+});
