@@ -2,6 +2,7 @@ const url = "http://localhost:5678/api/";
 
 
 // Fetch works from API
+var works = null;
 
 fetch(`${url}works`)
   .then((response) => {
@@ -10,8 +11,10 @@ fetch(`${url}works`)
     }
   })
   .then((projects) => {
-    projects.forEach((project) => {
+    works = projects;
+    works.forEach((project) => {
       let figure = document.createElement("figure");
+      figure.setAttribute("data-id", project.id);
       let image = document.createElement ("img");
       let figcaption = document.createElement("figcaption");
       image.src = project.imageUrl;
@@ -25,7 +28,7 @@ fetch(`${url}works`)
 
       var gallery = document.querySelector(".gallery");
       //to do : Refactoriser
-      const createFigureGallery = gallery.appendChild(figure);
+      gallery.appendChild(figure);
       
     });
   })
@@ -62,14 +65,8 @@ fetch(`${url}works`)
           gallery.innerHTML = "";
           let categoryId = event.target.getAttribute("data-id");
 
-          fetch(`${url}works`)
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            }
-          })
-          .then((projects) => {
-            projects.forEach((project) => {
+          
+            works.forEach((project) => {
               if (categoryId == "0" || categoryId == project.categoryId) {
               let figure = document.createElement("figure");
               let image = document.createElement ("img");
@@ -88,7 +85,7 @@ fetch(`${url}works`)
               }
               
             });
-          })
+          
           
         
         

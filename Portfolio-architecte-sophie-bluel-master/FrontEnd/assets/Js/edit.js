@@ -79,11 +79,13 @@ if (sessionStorage.token) {
         //suppression du token de sessionStorage
         sessionStorage.clear();
         //redirection vers la page de connexion
-        //window.location.href = "index.html";
+        window.location.href = "index.html";
     };
-    const logoutButton = document.querySelector("#linkLogin");
+    
     //ajout d'un addEventListener au clic sur le bouton
-    logoutButton.addEventListener("click", () => {
+    login.addEventListener("click", (event) => {
+        event.preventDefault ();
+        console.log("click", logout)
         logout();
     });
 
@@ -98,6 +100,7 @@ if (sessionStorage.token) {
     let modal_2 = document.querySelector(".modal_2")
     let modal = document.querySelector(".modal")
     let overlay = document.querySelector(".overlay")
+
     const openModal = () => {
         modal.classList.add("active");
         overlay.classList.add("active");
@@ -129,6 +132,18 @@ if (sessionStorage.token) {
 
     document.getElementById("closeModal").addEventListener("click", closeModal);
     document.getElementById("closeModal_2").addEventListener("click", closeModal_2);
+
+    //fermture on click a l'extérieur de la moddal
+    overlay.addEventListener("click", closeModal)
+    overlay.addEventListener("click", closeModal_2)
+    
+    //bouton return
+    const return_modal1 = document.getElementById("previous_icon");
+    return_modal1.addEventListener("click", () => {
+    closeModal_2();
+    openModal()
+    });
+
 
     // open Modal AddPhoto
     const addingModal = document.getElementById("addPhoto");
@@ -237,8 +252,20 @@ if (sessionStorage.token) {
                     console.error(err);
                 });
                 };
+
+                //delete ALL
+
+                let deleteTrigger = document.querySelector(".gallery_supression")
+                var gallery = document.querySelector(".gallery");
+                const deleteAllWork = () => {
+                     gallery.querySelectorAll("figure").forEach(
+                        (figure) => { 
+                            figure.remove()
+                }
+                    )}
+                    deleteTrigger.addEventListener("click", deleteAllWork)
                 
-                //fonction qui va vérifier si les datas rentrées dans le formulaire sont correctes
+                //fonction qui va vérifier sont correctes
             const verifyData = () => {
             const buttonCheck = document.getElementById("valider");
             const newPhoto = document.getElementById("buttonAddPhoto");
@@ -287,7 +314,10 @@ if (sessionStorage.token) {
             )
                 .then((res) => {
                     if (res.ok) {
-                        addDynamicWork();
+                        res.json().then((data) => {
+                        addDynamicWork(data);
+                        })
+                        
                         alert("Projet ajouté !");
                     } else {
                         let error = document.querySelector("p#error");
@@ -300,27 +330,31 @@ if (sessionStorage.token) {
                         );
                     }
                 })
-                .then((data) => {
-                    console.log(data);
-                })
+                
         
                 .catch((error) => {
                     console.log(error);
                 });
         };
         
-        const addDynamicWork = () => {
+        const addDynamicWork = (project) => {
             //ajoute dynamiquement le Work en utilisant l'ancienne fonction
-            fetch("http://localhost:5678/api/works")
-                .then((res) => {
-                    if (res.ok) {
-                        return res.json();
-                    }
-                })
-                .then((products) => {
-                    createFigureGallery(products[products.length - 1]);
-                    console.log("L'image a bien été ajoutée");
-                });
+            let figure = document.createElement("figure");
+            figure.setAttribute("data-id", project.id);
+            let image = document.createElement ("img");
+            let figcaption = document.createElement("figcaption");
+            image.src = project.imageUrl;
+            image.alt = project.title;
+            figcaption.innerHTML = project.title;
+      
+            image.setAttribute("crossorigin", "anonymous");  
+      
+            figure.appendChild(image);
+            figure.appendChild(figcaption)
+      
+            var gallery = document.querySelector(".gallery");
+            //to do : Refactoriser
+            gallery.appendChild(figure);
         };
 
         const photoPreview = document.getElementById("buttonAddPhoto");

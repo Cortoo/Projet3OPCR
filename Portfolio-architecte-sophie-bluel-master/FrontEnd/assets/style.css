@@ -324,11 +324,11 @@ section {
 	display: none;
 	
 }
-.modal_2{
+.modal_2 {
     display: none;
 }
 
-.modal.active {
+.modal.active, .modal_2.active {
     display: flex;
 }
 .imgModalGallery {
@@ -612,4 +612,8 @@ section {
 #valider {
     border-style: none;
     background-color: #a7a7a7;
+}
+
+#seConnecter{
+    cursor: pointer;
 }
