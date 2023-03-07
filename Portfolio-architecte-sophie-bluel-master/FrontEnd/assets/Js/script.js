@@ -1,9 +1,34 @@
 const url = "http://localhost:5678/api/";
 
-
-// Fetch works from API
 var works = null;
+var gallery = document.querySelector(".gallery");
+let categoriesContainer = document.querySelector(".filters");
 
+//Fonctions :
+
+//Fonction création de figure gallery
+const createFigureGallery = (element) => {
+  const figure = document.createElement("figure");
+  figure.setAttribute("data-tag", element.category.name);
+  figure.setAttribute("data-id", element.id);
+
+  const img = document.createElement("img");
+  img.setAttribute("crossorigin", "anonymous");
+  img.setAttribute("src", element.imageUrl);
+  img.setAttribute("alt", element.title);
+
+  const figcaption = document.createElement("figcaption");
+  figcaption.innerText = element.title;
+
+  figure.appendChild(img);
+  figure.appendChild(figcaption);
+
+  //return figure;
+  //comment sortir appenchild de la fonction?
+  gallery.appendChild(figure);
+};
+
+//Fetch works from API
 fetch(`${url}works`)
   .then((response) => {
     if (response.ok) {
@@ -13,30 +38,14 @@ fetch(`${url}works`)
   .then((projects) => {
     works = projects;
     works.forEach((project) => {
-      let figure = document.createElement("figure");
-      figure.setAttribute("data-id", project.id);
-      let image = document.createElement ("img");
-      let figcaption = document.createElement("figcaption");
-      image.src = project.imageUrl;
-      image.alt = project.title;
-      figcaption.innerHTML = project.title;
-
-      image.setAttribute("crossorigin", "anonymous");  
-
-      figure.appendChild(image);
-      figure.appendChild(figcaption)
-
-      var gallery = document.querySelector(".gallery");
-      //to do : Refactoriser
-      gallery.appendChild(figure);
+      createFigureGallery(project);
       
     });
   })
   .catch((error) => console.log("mon erreur "+error));
 
-  //fetch categories from API
-  
 
+  //fetch categories from API
   fetch(`${url}categories`)
   .then((response) => {
     if (response.ok) {
@@ -51,50 +60,26 @@ fetch(`${url}works`)
         name: "Tous",
       });
 
-
-      let categoriesContainer = document.querySelector(".filters");
-      var gallery = document.querySelector(".gallery");
-
+      //Affichage des Works selon filtre 
       choices.forEach((choice) => {
         let button = document.createElement("button");
         button.innerHTML = choice.name;
         button.setAttribute("data-id", choice.id);
-
         button.addEventListener("click", function(event) {
-          var gallery = document.querySelector(".gallery");
-          gallery.innerHTML = "";
-          let categoryId = event.target.getAttribute("data-id");
+        gallery.innerHTML = "";
+        let categoryId = event.target.getAttribute("data-id");
 
           
-            works.forEach((project) => {
-              if (categoryId == "0" || categoryId == project.categoryId) {
-              let figure = document.createElement("figure");
-              let image = document.createElement ("img");
-              let figcaption = document.createElement("figcaption");
-              image.src = project.imageUrl;
-              image.alt = project.title;
-              figcaption.innerHTML = project.title;
-        
-              image.setAttribute("crossorigin", "anonymous");  
-        
-              figure.appendChild(image);
-              figure.appendChild(figcaption)
-        
+        works.forEach((project) => {
+          if (categoryId == "0" || categoryId == project.categoryId) {
+          createFigureGallery(project)
+          }
               
-              gallery.appendChild(figure);
-              }
-              
-            });
-          
-          
-        
-        
-
+        });
         })
         categoriesContainer.appendChild(button);
-        })
-        
       })
+  })
     
    
 

@@ -1,4 +1,4 @@
-const serverUrl = "http://localhost:5678/api/";
+const url = "http://localhost:5678/api/";
 
 let emailInput = document.querySelector("#email");
 let passwordInput = document.querySelector("#password");
@@ -12,7 +12,9 @@ form.addEventListener("submit", (event) => {
         email: emailInput.value,
         password: passwordInput.value,
     };
-    fetch(serverUrl + "users/login", {
+    
+    //fetch(`${url}users/login`, {
+        fetch(`${url}users/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json;charset=utf-8",
@@ -28,7 +30,7 @@ form.addEventListener("submit", (event) => {
                     form.removeChild(ExistingErrorContainer);
                 }
 
-                // Création du conteneur et affichage des erreurs correspondantes
+        // Création du conteneur des erreurs
                 const errorContainer = document.createElement("div");
                 errorContainer.classList.add("error_container");
                 const connexionInput = form.querySelector(

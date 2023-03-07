@@ -26,7 +26,7 @@ const createEditingButton = (id) => {
     editingButton.innerHTML = `<i class="fa-regular fa-pen-to-square"></i>
     <p>modifier</p>`;
 };
-   //test decode JWT
+   //Decode JWT pour sécuriser la connexion (sinon l'user a simplement a mettre token = 1 dans la console pour se connecter)
    function parseJwt (token) {
     var base64Url = token.split('.')[1];
     if (base64Url) {
@@ -47,22 +47,20 @@ else {
 }
 
 if (sessionStorage.token) {
-   
+    //vérifie que le Token est valide
     const timeOut = parseJwt(sessionStorage.token) ? parseJwt(sessionStorage.token).exp : 0;
     if (timeOut >= Date.now()/1000) {
         
-    
     //suppression filtres quand login
     document.querySelector(".filters").style.display = "none";
 
-    //création banner
+    //création banner édition
     createBannner();
     body.insertBefore(editingBanner, header);
 
     createEditingButton("introduction_figure_button");
     const introductionFigure = introduction.querySelector("figure");
     introductionFigure.append(editingButton);
-
 
     createEditingButton("projects_editing_button");
     portfolio.append(editingButton);
@@ -78,7 +76,7 @@ if (sessionStorage.token) {
     const logout = () => {
         //suppression du token de sessionStorage
         sessionStorage.clear();
-        //redirection vers la page de connexion
+        //redirection homepage
         window.location.href = "index.html";
     };
     
@@ -94,75 +92,115 @@ if (sessionStorage.token) {
 
 
     //Modal
+
+    const modalBox = `
+    <div class="overlay"></div>
+
+    <aside id="edit_modal" class="modal">
+        <div class="modalWrapper">
+        <header class="headerModal">
+            <i id="closeModal" class="fa-solid fa-xmark"></i>
+        </header>
+        <h3>Galerie photo</h3>
+        <div class="modal_content"></div>
+        <input type="submit" id="addPhoto" value="Ajouter une photo">  
+        <div class="gallery_supression">Supprimer la galerie</div>
+    </aside>
+    </div>
     
-    //OpenModal
-    let addPhotoModal = document.querySelector("#add_Photo");
-    let modal_2 = document.querySelector(".modal_2")
-    let modal = document.querySelector(".modal")
-    let overlay = document.querySelector(".overlay")
-
-    const openModal = () => {
-        modal.classList.add("active");
-        overlay.classList.add("active");
-    }
-
-    const openModal_2 = () => {
-        modal_2.style.display = "block";
-        overlay.classList.add("active");
-
-    }
     
+        <aside id="add_Photo" class="modal_2">
+            <div class="modalWrapper">
+            <header class="headerModal">
+                <i id="previous_icon" class="fa-solid fa-arrow-left-long"></i>
+                <i id="closeModal_2" class="fa-solid fa-xmark"></i>
+            </header>
+            <h3>Ajout photo</h3>
+            <div class="modal_content"></div>
+        <form action="#" method="post" id="addPhotoForm">
+            <div id="sendPhotoContainer">
+                <label class="sendPhotoContent" for="buttonAddPhoto">
+                    <i class="fa-regular fa-image photoIcon"></i>
+                </label>
+                <label for="buttonAddPhoto" id="buttonAddPhotoData" class="sendPhotoContent">
+                  + Ajouter photo
+                <input type="file" id="buttonAddPhoto" accept="image/jpeg,image/png,image/jpg" required />
+                </label>
+                <label class="sendPhotoContent" id="indicationPhoto">jpg.png: 4mo max</label>
+                                <img id="photoShowPreview" alt="votre photo" src="#" />
+                            </div>
+                            <div class="optionPhotoSelection">
+                            <label>Titre</label>
+                            <input type="text" name="Title" id="sendPhotoTitle" required />
+                            <label>Catégorie</label>
+                            <select id="sendPhotoCategory">
+                                <option value="0"></option>
+                                <option value="1">Objets</option>
+                                <option value="2">Appartements</option>
+                                <option value="3">Hôtels & restaurants</option>
+                            </select>
+                            </div>
+                        </form>
+                        <button id="valider">Valider</button>  
+                </div>
+                
+        
+            </aside>
+        </div>
+        `
+        document.body.insertAdjacentHTML("afterbegin", modalBox);
+
+    //OpenModal & CloseModal
+    const addPhotoModal = document.querySelector("#add_Photo");
+    const modal_2 = document.querySelector(".modal_2");
+    const modal = document.querySelector(".modal");
+    const overlay = document.querySelector(".overlay");
+
+    //Open Modal
+    const openModal = (modal) => {
+    modal.classList.add("active");
+    overlay.classList.add("active");
+    };
+
+    //Close Modal
+    const closeModal = (modal) => {
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+    };
+
+    //openModal on click "Modifier" on Homepage
     const projectsEditingButton = document.querySelectorAll(".edit_button").forEach(a => {
-        a.addEventListener("click", openModal)
-    })
+    a.addEventListener("click", () => openModal(modal));
+    });
+
+    //closeModal when click on cross
+    document.getElementById("closeModal").addEventListener("click", () => closeModal(modal));
+    document.getElementById("closeModal_2").addEventListener("click", () => closeModal(modal_2));
+
+    //closeModal when click outside Modal
+    overlay.addEventListener("click", () => {
+    closeModal(modal);
+    closeModal(modal_2);
+    });
 
     
-   
-    //CloseModal
-    const closeModal = () => {
-        modal.classList.remove("active");
-        overlay.classList.remove("active");
-    };
-
-    //CloseModal2
-    const closeModal_2 = () => {
-        modal_2.style.display = "none";
-        overlay.classList.remove("active");
-    };
-
-    document.getElementById("closeModal").addEventListener("click", closeModal);
-    document.getElementById("closeModal_2").addEventListener("click", closeModal_2);
-
-    //fermture on click a l'extérieur de la moddal
-    overlay.addEventListener("click", closeModal)
-    overlay.addEventListener("click", closeModal_2)
-    
-    //bouton return
+    //Button return
     const return_modal1 = document.getElementById("previous_icon");
     return_modal1.addEventListener("click", () => {
-    closeModal_2();
-    openModal()
+    closeModal(modal_2);
+    openModal(modal)
     });
 
 
-    // open Modal AddPhoto
+    // open Modal_2 when click on AddPhoto
     const addingModal = document.getElementById("addPhoto");
                 addingModal.addEventListener("click", () => {
-                closeModal();
-                openModal_2()
+                closeModal(modal);
+                openModal(modal_2)
                 });
-    
-    
-
-    
-
     }
-        
-
 }
     //ajout des photos gallerie Modal
-    
-    //création figure dans GalleryModal
     const createFigureModal = (element) => {
         const modalGallery = document.querySelector(".modal_content");
 
@@ -198,35 +236,32 @@ if (sessionStorage.token) {
         modalGallery.appendChild(figure);
     };
     
-    fetch("http://localhost:5678/api/works")
-        //si fetch fonctionne on récupère les données au format JSON
+    fetch(`${url}works`)
         .then((res) => {
             if (res.ok) {
                 return res.json();
             }
         })
 
-        //"createFigureModal" pour chaque élément récupéré
-        .then((products) => {
-            products.forEach((product) => {
-                createFigureModal(product);
+        //Création de figure gallery dans la Modal
+        .then((projects) => {
+            projects.forEach((project) => {
+                createFigureModal(project);
             });
-            //ajoute un addEventListener sur tous les icones corbeille
+            //ajoute un addEventListener sur trashCan
             const trashButtons = document.querySelectorAll(".trashCan");
             trashButtons.forEach((button) => {
                 button.addEventListener("click", (e) => deleteWork(e.target));
             });
         })
-
-        //Console LOG
         .catch((err) => {
             console.log(err);
         });
 
-        //delete WORK
+        //Delete WORK
         const deleteWork = (element) => {
             const workId = element.dataset.id;
-            fetch(`http://localhost:5678/api/works/${workId}`, {
+            fetch(`${url}works/${workId}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${sessionStorage["token"]}`,
@@ -244,7 +279,7 @@ if (sessionStorage.token) {
                             }
                         );
                     } else {
-                        //si la suppression a échoué, affiche un message d'erreur
+                        //si la suppression a échoué = erreur
                         console.error("Une erreur est survenue lors de la suppression");
                     }
                 })
@@ -253,25 +288,51 @@ if (sessionStorage.token) {
                 });
                 };
 
-                //delete ALL
+                //Delete ALL when click on Supprimer la galerie
 
                 let deleteTrigger = document.querySelector(".gallery_supression")
                 var gallery = document.querySelector(".gallery");
                 const deleteAllWork = () => {
-                     gallery.querySelectorAll("figure").forEach(
-                        (figure) => { 
-                            figure.remove()
-                }
-                    )}
-                    deleteTrigger.addEventListener("click", deleteAllWork)
+                    const figures = gallery.querySelectorAll("figure");
+                    figures.forEach((figure) => {
+                      const workId = figure.getAttribute("data-id");
+                      fetch(`${url}works/${workId}`, {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${sessionStorage["token"]}`,
+                        },
+                      })
+                        .then((res) => {
+                          if (res.ok) {
+                            console.log(`Les projets ont bien été supprimés`);
+                           //a revoir pour supprimer de la gallery = workId.parentNode.remove();
+                            Array.from(gallery.querySelectorAll("figure")).forEach(
+                                (figure) => {
+                                    if (figure.getAttribute("data-id") === workId) {
+                                        figure.remove();
+                                    }
+                                })
+                            //figure.remove();
+                          } else {
+                            console.error(`Une erreur est survenue lors de la suppression des projets`);
+                          }
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                        });
+                    });
+                  };
+                  
+                  deleteTrigger.addEventListener("click", deleteAllWork);
                 
-                //fonction qui va vérifier sont correctes
+            //fonction qui va vérifier datas sont correctes
             const verifyData = () => {
             const buttonCheck = document.getElementById("valider");
             const newPhoto = document.getElementById("buttonAddPhoto");
             const newTitle = document.getElementById("sendPhotoTitle");
             const selectElement = document.getElementById("sendPhotoCategory");
-            //si les 3 champs à remplir sont completés on met le background en couleur
+
+            //si les 3 champs sont corrects = bouton vert
             if (
             newPhoto.value !== "" &&
             newTitle.value !== "" &&
@@ -283,7 +344,7 @@ if (sessionStorage.token) {
             }
             buttonCheck.style.backgroundColor = "#1D6154";
             return true;
-            //sinon on le laisse en gris
+            //sinon bouton gris
             } else {
             buttonCheck.style.backgroundColor = "#A7A7A7";
             return false;
@@ -291,7 +352,7 @@ if (sessionStorage.token) {
         };
 
         const createNewWork = () => {
-            //crée la nouvelle image
+            //créer la nouvelle image
             const data = new FormData();
             const buttonCheck = document.getElementById("valider");
             const newPhoto = document.getElementById("buttonAddPhoto");
@@ -301,8 +362,7 @@ if (sessionStorage.token) {
             data.append("title", newTitle.value);
             data.append("category", newCategory.value);
         
-            fetch(
-                "http://localhost:5678/api/works", //envoie une requête à l'api pour crée une nouvelle image
+            fetch(`${url}works`,
                 {
                     method: "POST",
                     accept: "application/json",
@@ -318,7 +378,7 @@ if (sessionStorage.token) {
                         addDynamicWork(data);
                         })
                         
-                        alert("Projet ajouté !");
+                        alert("Le projet a bien été ajouté");
                     } else {
                         let error = document.querySelector("p#error");
                         if (error) {
@@ -326,17 +386,16 @@ if (sessionStorage.token) {
                         }
                         buttonCheck.insertAdjacentHTML(
                             "beforebegin",
-                            `<p id="error">*Veuillez remplir tous les champs</p>`
+                            `<p id="error">*Tous les champs sont nécessaires</p>`
                         );
                     }
                 })
-                
-        
                 .catch((error) => {
                     console.log(error);
                 });
         };
         
+         //to do : Refactoriser
         const addDynamicWork = (project) => {
             //ajoute dynamiquement le Work en utilisant l'ancienne fonction
             let figure = document.createElement("figure");
@@ -353,15 +412,16 @@ if (sessionStorage.token) {
             figure.appendChild(figcaption)
       
             var gallery = document.querySelector(".gallery");
-            //to do : Refactoriser
             gallery.appendChild(figure);
+
+            
         };
 
         const photoPreview = document.getElementById("buttonAddPhoto");
-    photoPreview.addEventListener("change", (event) => {
+        photoPreview.addEventListener("change", (event) => {
         const file = event.target.files[0];
+        //vérifie la taille de l'image
         if (file.size < 4 * 1024 * 1024) {
-            //vérifie la taille de l'image
             const photoPreviewBox = document.getElementById("photoShowPreview");
             const fileUrl = URL.createObjectURL(file);
             photoPreviewBox.src = fileUrl;
@@ -382,7 +442,7 @@ document
 .getElementById("addPhotoForm")
 .addEventListener("change", verifyData);
 
-//si le bouton est en couleur (valide), la fonction createNewWork est appellée quand cliqué
+//si le bouton est valide, la fonction createNewWork est appellée quand cliqué
 document.getElementById("valider").addEventListener("click", () => {
 if (verifyData) {
     createNewWork();
