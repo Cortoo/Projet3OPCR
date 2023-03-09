@@ -1,5 +1,3 @@
-const url = "http://localhost:5678/api/";
-
 let emailInput = document.querySelector("#email");
 let passwordInput = document.querySelector("#password");
 let form = document.querySelector("form");
@@ -13,7 +11,7 @@ form.addEventListener("submit", (event) => {
         password: passwordInput.value,
     };
     
-    //fetch(`${url}users/login`, {
+    
         fetch(`${url}users/login`, {
         method: "POST",
         headers: {
@@ -40,14 +38,15 @@ form.addEventListener("submit", (event) => {
 
 
                 //to do 1 seul erreur : Erreur dans l’identifiant ou le mot de passe   else : 
-                if (response.status === 404) {
+                if (response.status === 404 || response.status === 401) {
                     errorContainer.innerText =
                         "Erreur dans l’identifiant ou le mot de passe";
                 }
-                if (response.status === 401) {
+                else {
                     errorContainer.innerText =
-                        "Erreur dans l’identifiant ou le mot de passe";
+                        "Erreur interne";
                 }
+               
             } else {
                 return response.json();
             }

@@ -1,5 +1,3 @@
-const url = "http://localhost:5678/api/";
-
 var works = null;
 var gallery = document.querySelector(".gallery");
 let categoriesContainer = document.querySelector(".filters");
@@ -9,7 +7,7 @@ let categoriesContainer = document.querySelector(".filters");
 //Fonction création de figure gallery
 const createFigureGallery = (element) => {
   const figure = document.createElement("figure");
-  figure.setAttribute("data-tag", element.category.name);
+  figure.setAttribute("data-tagid", element.categoryId);
   figure.setAttribute("data-id", element.id);
 
   const img = document.createElement("img");
@@ -23,9 +21,7 @@ const createFigureGallery = (element) => {
   figure.appendChild(img);
   figure.appendChild(figcaption);
 
-  //return figure;
-  //comment sortir appenchild de la fonction?
-  gallery.appendChild(figure);
+  return figure;
 };
 
 //Fetch works from API
@@ -38,7 +34,7 @@ fetch(`${url}works`)
   .then((projects) => {
     works = projects;
     works.forEach((project) => {
-      createFigureGallery(project);
+      gallery.appendChild(createFigureGallery(project));
       
     });
   })
@@ -72,8 +68,8 @@ fetch(`${url}works`)
           
         works.forEach((project) => {
           if (categoryId == "0" || categoryId == project.categoryId) {
-          createFigureGallery(project)
-          }
+          gallery.appendChild(createFigureGallery(project));
+                  }
               
         });
         })

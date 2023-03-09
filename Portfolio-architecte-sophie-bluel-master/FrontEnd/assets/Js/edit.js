@@ -147,7 +147,7 @@ if (sessionStorage.token) {
         
             </aside>
         </div>
-        `
+        `;
         document.body.insertAdjacentHTML("afterbegin", modalBox);
 
     //OpenModal & CloseModal
@@ -200,13 +200,14 @@ if (sessionStorage.token) {
                 });
     }
 }
+
+const modalGallery = document.querySelector(".modal_content");
+
     //ajout des photos gallerie Modal
     const createFigureModal = (element) => {
-        const modalGallery = document.querySelector(".modal_content");
-
         const figure = document.createElement("figure");
         figure.setAttribute("data-id", element.id);
-        figure.setAttribute("data-tag", element.category.name);
+        figure.setAttribute("data-tagid", element.categoryId);
         figure.setAttribute("class", "figureModalGallery");
 
         const img = document.createElement("img");
@@ -305,14 +306,13 @@ if (sessionStorage.token) {
                         .then((res) => {
                           if (res.ok) {
                             console.log(`Les projets ont bien été supprimés`);
-                           //a revoir pour supprimer de la gallery = workId.parentNode.remove();
+                           modalGallery.innerHTML = ""; // vide la gallery en dynamique
                             Array.from(gallery.querySelectorAll("figure")).forEach(
                                 (figure) => {
                                     if (figure.getAttribute("data-id") === workId) {
                                         figure.remove();
                                     }
                                 })
-                            //figure.remove();
                           } else {
                             console.error(`Une erreur est survenue lors de la suppression des projets`);
                           }
@@ -326,7 +326,7 @@ if (sessionStorage.token) {
                   deleteTrigger.addEventListener("click", deleteAllWork);
                 
             //fonction qui va vérifier datas sont correctes
-            const verifyData = () => {
+            const verifyDataCorrect = () => {
             const buttonCheck = document.getElementById("valider");
             const newPhoto = document.getElementById("buttonAddPhoto");
             const newTitle = document.getElementById("sendPhotoTitle");
@@ -342,12 +342,12 @@ if (sessionStorage.token) {
             if (error) {
             error.remove();
             }
-            buttonCheck.style.backgroundColor = "#1D6154";
-            return true;
+            buttonCheck.classList.add("disabled");
+            //return true;
             //sinon bouton gris
             } else {
-            buttonCheck.style.backgroundColor = "#A7A7A7";
-            return false;
+            buttonCheck.classList.remove("disabled");
+            //return false;
             }
         };
 
@@ -376,9 +376,23 @@ if (sessionStorage.token) {
                     if (res.ok) {
                         res.json().then((data) => {
                         addDynamicWork(data);
+                        setTimeout(() => {
+                            addPhotoForm.reset();
+                        }, 500);
+                        if (photoPreview.value) {
+                            photoPreview.value = "";
+                            const photoPreviewBox = document.getElementById("photoShowPreview");
+                            photoPreviewBox.src = "";
+                            const sendPhotoContentElements = document.querySelectorAll(".sendPhotoContent");
+                            for (const element of sendPhotoContentElements) {
+                               element.style.display = "flex";
+                               photoPreviewBox.style.display = "none";
+                            }
+                         }
                         })
+                    
                         
-                        alert("Le projet a bien été ajouté");
+                        //alert //pourrait étre améliorer pour prévenir que le projet a bien était ajouté
                     } else {
                         let error = document.querySelector("p#error");
                         if (error) {
@@ -395,26 +409,10 @@ if (sessionStorage.token) {
                 });
         };
         
-         //to do : Refactoriser
+         
         const addDynamicWork = (project) => {
-            //ajoute dynamiquement le Work en utilisant l'ancienne fonction
-            let figure = document.createElement("figure");
-            figure.setAttribute("data-id", project.id);
-            let image = document.createElement ("img");
-            let figcaption = document.createElement("figcaption");
-            image.src = project.imageUrl;
-            image.alt = project.title;
-            figcaption.innerHTML = project.title;
-      
-            image.setAttribute("crossorigin", "anonymous");  
-      
-            figure.appendChild(image);
-            figure.appendChild(figcaption)
-      
-            var gallery = document.querySelector(".gallery");
-            gallery.appendChild(figure);
-
-            
+            gallery.appendChild(createFigureGallery(project));  
+            createFigureModal(project);
         };
 
         const photoPreview = document.getElementById("buttonAddPhoto");
@@ -437,14 +435,16 @@ if (sessionStorage.token) {
         }
     });
 
+   
+
 //verifie les changement dans le form
 document
 .getElementById("addPhotoForm")
-.addEventListener("change", verifyData);
+.addEventListener("change", verifyDataCorrect);
 
 //si le bouton est valide, la fonction createNewWork est appellée quand cliqué
 document.getElementById("valider").addEventListener("click", () => {
-if (verifyData) {
+if (verifyDataCorrect) {
     createNewWork();
 }
 });
